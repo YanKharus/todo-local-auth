@@ -1,4 +1,5 @@
 const Todo = require('../models/Todo')
+const TimeBlock = require('../models/TimeBlock')
 
 module.exports = {
     getTodos: async (req,res)=>{
@@ -6,8 +7,16 @@ module.exports = {
         try{
             const todoItems = await Todo.find({userId:req.user.id})
             const itemsLeft = await Todo.countDocuments({userId:req.user.id,completed: false})
-            console.log(req.body)
-            res.render('todos.ejs', {todos: todoItems, left: itemsLeft, user: req.user})
+            const timeObjects = await TimeBlock.find({userId:req.user.id})
+            let averageTime = 0;
+            
+            for(let i = 0; i < timeObjects.length; i++){
+                averageTime+= timeObjects[i].session
+                
+            }
+            const average = String(averageTime/timeObjects.length).match(/\d+\.\d{2}/)
+            console.log(average)
+            res.render('todos.ejs', {todos: todoItems, left: itemsLeft, user: req.user, average: average})
             
         }catch(err){
             console.log(err)
@@ -50,6 +59,14 @@ module.exports = {
             await Todo.findOneAndDelete({_id:req.body.todoIdFromJSFile})
             console.log('Deleted Todo')
             res.json('Deleted It')
+        }catch(err){
+            console.log(err)
+        }
+    },
+    collectTimeBlock: async (req, res)=>{
+        try{
+            await TimeBlock.create({session: req.body.sessionTime, userId: req.user.id})
+            console.log('session collected')
         }catch(err){
             console.log(err)
         }

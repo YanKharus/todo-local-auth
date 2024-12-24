@@ -71,7 +71,29 @@ async function markIncomplete(){
         console.log(err)
     }
 }
+
+
 // timer related---------------------------timer related-------------------------- timer related
+
+
+async function collectTimeBlock(session){
+    try {
+      const response = await fetch('todos/collectTimeBlock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            sessionTime: session})
+      });
+      const data = await response.json()
+        console.log(data)
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  
+  
+  
+
 class timer {
     static #timerId;
     static #timeBlock;
@@ -101,6 +123,7 @@ class timer {
                 clearInterval(timer.#timerId) 
                 timerPause.classList.add('hidden')
                 timerDisplay.textContent = `Congratulations you finished a session of ${timer.#timeBlock}, take a break!`
+                collectTimeBlock(timer.#timeBlock)
             }
         }),1000)
     }
